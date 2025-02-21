@@ -1,0 +1,6 @@
+@FrequancyPowerMain_HostAddress = http://localhost:5056
+
+GET {{FrequancyPowerMain_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
