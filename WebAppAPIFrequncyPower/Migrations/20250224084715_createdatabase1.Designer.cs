@@ -12,8 +12,8 @@ using WebAppAPIFrequncyPower.DataContext;
 namespace WebAppAPIFrequncyPower.Migrations
 {
     [DbContext(typeof(PowerGridContext))]
-    [Migration("20250221210002_FersiMigrationProjectFrequncy")]
-    partial class FersiMigrationProjectFrequncy
+    [Migration("20250224084715_createdatabase1")]
+    partial class createdatabase1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

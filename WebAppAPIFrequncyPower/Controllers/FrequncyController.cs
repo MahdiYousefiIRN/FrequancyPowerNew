@@ -1,49 +1,51 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿// FrequencyController.cs
 using Microsoft.AspNetCore.Mvc;
-using WebAppAPIFrequncyPower.DataContext;
 using WebAppAPIFrequncyPower.Model;
+using WebAppAPIFrequncyPower.Services.InterfaceServic;
 
 namespace WebAppAPIFrequncyPower.Controllers
 {
-    public class FrequncyController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class FrequencyController : ControllerBase
     {
+        private readonly IFrequncy _frequncyService;
 
-        [Route("api/[controller]")]
-        [ApiController]
-        public class FrequencyController : ControllerBase
+        // دریافت سرویس از طریق DI
+        public FrequencyController(IFrequncy frequncyService)
         {
-            private readonly PowerGridContext _context;
+            _frequncyService = frequncyService;
+        }
 
-            public FrequencyController(PowerGridContext context)
-            {
-                _context = context;
-            }
+        // گرفتن 10 داده آخر فرکانس
+        [HttpGet]
+        public async Task<IActionResult> GetFrequencies()
+        {
+            var frequencies = await _frequncyService.GetFrequncyDataTask();
+            return Ok(frequencies.OrderByDescending(f => f.Timestamp).Take(10).ToList());
+        }
 
-            [HttpGet]
-            public IActionResult GetFrequencies()
+        // دریافت داده جدید فرکانس
+        [HttpPost]
+        public async Task<IActionResult> PostFrequency([FromBody] PowerFrequencyData frequencyRecord)
+        {
+            // اگر فرکانس کمتر از 59 هرتز باشد، هشدار ثبت می‌شود.
+            if (frequencyRecord.Frequency < 59)
             {
-                var frequencies = _context.DbSetFrequency.OrderByDescending(f => f.Timestamp).Take(10).ToList();
-                return Ok(frequencies);
-            }
-
-            [HttpPost]
-            public IActionResult PostFrequency([FromBody] PowerFrequencyData frequencyRecord)
-            {
-                if (frequencyRecord.Frequency < 59)
+                var alert = new Alert()
                 {
-                    var alert = new Alert()
-                    {
-                        Timestamp = DateTime.Now,
-                        Message = $"Frequency dropped below threshold: {frequencyRecord.Frequency} Hz",
-                        Severity = "High"
-                    };
-                    _context.DbSetAlerts.Add(alert);
-                }
-
-                _context.SaveChanges();
-
-                return CreatedAtAction(nameof(GetFrequencies), new { id = frequencyRecord.Id }, frequencyRecord);
+                    Timestamp = DateTime.Now,
+                    Message = $"Frequency dropped below threshold: {frequencyRecord.Frequency} Hz",
+                    Severity = "High"
+                };
+                // اضافه کردن هشدار به پایگاه داده از طریق سرویس
+                await _frequncyService.AddAlertAsync(alert);
             }
+
+            // اضافه کردن داده جدید فرکانس به پایگاه داده از طریق سرویس
+            await _frequncyService.AddFrequencyDataAsync(frequencyRecord);
+
+            return CreatedAtAction(nameof(GetFrequencies), new { id = frequencyRecord.Id }, frequencyRecord);
         }
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebAppAPIFrequncyPower.Migrations
 {
     /// <inheritdoc />
-    public partial class FersiMigrationProjectFrequncy : Migration
+    public partial class createdatabase1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
