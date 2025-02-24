@@ -1,0 +1,29 @@
+﻿@model MVCApp_PowerFrequency.Models.PowerFrequencyData
+
+@{
+    ViewData["Title"] = "Log Frequency Data";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<!-- نمایش پیام‌ها -->
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["Message"]
+    </div>
+}
+
+<form method="post" asp-action="LogFrequency">
+    <div class="form-group">
+        <label for="Frequency">Frequency (Hz)</label>
+        <input type="number" class="form-control" id="Frequency" name="Frequency" step="0.01" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Timestamp">Timestamp</label>
+        <input type="datetime-local" class="form-control" id="Timestamp" name="Timestamp" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
