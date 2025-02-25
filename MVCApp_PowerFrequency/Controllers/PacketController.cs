@@ -31,18 +31,31 @@ namespace MVCApp_PowerFrequency.Controllers
         }
 
         // صفحه اصلی با داده‌های فرکانس و قدرت
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(DateTime startDate, DateTime endDate, double? minFrequency, double? maxFrequency)
         {
-            var chartData = await GetChartDataAsync(); // دریافت داده‌ها از Web API
+            var chartData = await GetChartDataAsync(startDate, endDate, minFrequency, maxFrequency); // دریافت داده‌ها از Web API
             ViewData["SignalRStatus"] = _isSignalRConnected ? "Connected" : "Disconnected";
             return View("~/Views/Home/PacketView.cshtml", chartData);  // ارسال داده‌ها به ویو
         }
 
-        // متد برای دریافت داده‌های فرکانس از Web API
-        private async Task<ChartDataModel> GetChartDataAsync()
+        // متد برای دریافت داده‌ها از Web API با پارامترهای فیلتر
+        private async Task<ChartDataModel> GetChartDataAsync(DateTime startDate, DateTime endDate, double? minFrequency, double? maxFrequency)
         {
             var httpClient = _httpClientFactory.CreateClient();
-            var response = await httpClient.GetStringAsync($"{_apiUrl}/Frequency/get-frequency-data");  // ارسال درخواست به Web API
+            var url = $"{_apiUrl}/Frequency/get-frequency-data?startDate={startDate:yyyy-MM-ddTHH:mm:ss}&endDate={endDate:yyyy-MM-ddTHH:mm:ss}";
+
+            // اضافه کردن فیلترهای فرکانس در صورت وجود
+            if (minFrequency.HasValue)
+            {
+                url += $"&minFrequency={minFrequency.Value}";
+            }
+
+            if (maxFrequency.HasValue)
+            {
+                url += $"&maxFrequency={maxFrequency.Value}";
+            }
+
+            var response = await httpClient.GetStringAsync(url);  // ارسال درخواست به Web API با پارامترهای فیلتر
 
             var data = JsonSerializer.Deserialize<PowerFrequencyData[]>(response);  // تبدیل پاسخ به داده‌ها
             return new ChartDataModel
@@ -58,7 +71,7 @@ namespace MVCApp_PowerFrequency.Controllers
         {
             try
             {
-                _hubConnection.On<PowerFrequencyData>("ReceiveMessage", (data) =>
+                _hubConnection.On<PowerFrequencyData>("ReceiveFrequencyData", (data) =>
                 {
                     _logger.LogInformation("Received SignalR data: " + data.Frequency);
                     UpdateChartData(data); // به روز رسانی داده‌ها در نمودار
@@ -99,7 +112,7 @@ namespace MVCApp_PowerFrequency.Controllers
             {
                 var httpClient = _httpClientFactory.CreateClient();
                 var jsonContent = JsonContent.Create(packet);
-                var response = await httpClient.PostAsync($"{_apiUrl}/log-frequency", jsonContent); // اصلاح URL
+                var response = await httpClient.PostAsync($"{_apiUrl}/Frequency/log-frequency", jsonContent); // اصلاح URL
 
                 if (response.IsSuccessStatusCode)
                 {

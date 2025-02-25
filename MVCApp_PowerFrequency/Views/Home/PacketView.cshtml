@@ -1,77 +1,90 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@model MVCApp_PowerFrequency.Models.ChartDataModel
+﻿@model MVCApp_PowerFrequency.Models.ChartDataModel
 @{
-	ViewData["Title"] = "Power Frequency Management";
+    ViewData["Title"] = "Power Frequency Management";
 }
 
 <h2>@ViewData["Title"]</h2>
 
 <div class="alert alert-info" role="alert">
-	@ViewData["Message"]
+    @ViewData["Message"]
 </div>
 
 <div class="alert alert-success" role="alert" id="signalRStatus">
-	Status: @ViewData["SignalRStatus"]
+    Status: @ViewData["SignalRStatus"]
 </div>
 
 <div class="form-group">
-	@if (ViewData["SignalRStatus"]?.ToString() != "Connected")
-	{
-		<a href="@Url.Action("StartSignalRConnection", "Packet")" class="btn btn-primary">Connect to SignalR</a>
-	}
-	else
-	{
-		<a href="@Url.Action("StopSignalRConnection", "Packet")" class="btn btn-danger">Disconnect SignalR</a>
-	}
+    @if (ViewData["SignalRStatus"]?.ToString() != "Connected")
+    {
+        <a href="@Url.Action("StartSignalRConnection", "Packet")" class="btn btn-primary">Connect to SignalR</a>
+    }
+    else
+    {
+        <a href="@Url.Action("StopSignalRConnection", "Packet")" class="btn btn-danger">Disconnect SignalR</a>
+    }
 </div>
 
 <form method="post" asp-action="SendPacket" asp-controller="Packet">
-	<div class="form-group">
-		<label for="PostName">Post Name</label>
-		<input type="text" class="form-control" id="PostName" name="PostName" required />
-	</div>
-	<div class="form-group">
-		<label for="Frequency">Frequency (Hz)</label>
-		<input type="number" class="form-control" id="Frequency" name="Frequency" step="0.01" required />
-	</div>
-	<div class="form-group">
-		<label for="Power">Power (MW)</label>
-		<input type="number" class="form-control" id="Power" name="Power" required />
-	</div>
-	<button type="submit" class="btn btn-primary">Send Data</button>
+    <div class="form-group">
+        <label for="PostName">Post Name</label>
+        <input type="text" class="form-control" id="PostName" name="PostName" required />
+    </div>
+    <div class="form-group">
+        <label for="Frequency">Frequency (Hz)</label>
+        <input type="number" class="form-control" id="Frequency" name="Frequency" step="0.01" required />
+    </div>
+    <div class="form-group">
+        <label for="Power">Power (MW)</label>
+        <input type="number" class="form-control" id="Power" name="Power" required />
+    </div>
+    <div class="form-group">
+        <label for="StartDate">Start Date</label>
+        <input type="date" class="form-control" id="StartDate" name="StartDate" required />
+    </div>
+    <div class="form-group">
+        <label for="EndDate">End Date</label>
+        <input type="date" class="form-control" id="EndDate" name="EndDate" required />
+    </div>
+    <div class="form-group">
+        <label for="MinFrequency">Min Frequency (Hz)</label>
+        <input type="number" class="form-control" id="MinFrequency" name="MinFrequency" step="0.01" />
+    </div>
+    <div class="form-group">
+        <label for="MaxFrequency">Max Frequency (Hz)</label>
+        <input type="number" class="form-control" id="MaxFrequency" name="MaxFrequency" step="0.01" />
+    </div>
+    <button type="submit" class="btn btn-primary">Send Data</button>
 </form>
 
 <!-- Display chart if there is data -->
 @if (Model != null && Model.Labels != null && Model.Labels.Length > 0)
 {
-	<div>
-		<canvas id="frequencyChart"></canvas>
-	</div>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script>
-		var ctx = document.getElementById('frequencyChart').getContext('2d');
-		var frequencyChart = new Chart(ctx, {
-			type: 'line',
-			data: {
-				labels: @Html.Raw(Json.Serialize(Model.Labels)),
-				datasets: [{
-					label: 'Frequency (Hz)',
-					data: @Html.Raw(Json.Serialize(Model.Frequencies)),
-					borderColor: 'rgb(75, 192, 192)',
-					fill: false
-				}, {
-					label: 'Power (MW)',
-					data: @Html.Raw(Json.Serialize(Model.Powers)),
-					borderColor: 'rgb(153, 102, 255)',
-					fill: false
-				}]
-			}
-		});
-	</script>
+    <div>
+        <canvas id="frequencyChart"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var ctx = document.getElementById('frequencyChart').getContext('2d');
+        var frequencyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.Labels)),
+                datasets: [{
+                    label: 'Frequency (Hz)',
+                    data: @Html.Raw(Json.Serialize(Model.Frequencies)),
+                    borderColor: 'rgb(75, 192, 192)',
+                    fill: false
+                }, {
+                    label: 'Power (MW)',
+                    data: @Html.Raw(Json.Serialize(Model.Powers)),
+                    borderColor: 'rgb(153, 102, 255)',
+                    fill: false
+                }]
+            }
+        });
+    </script>
 }
 else
 {
-	<p>No data available to display.</p>
+    <p>No data available to display.</p>
 }
