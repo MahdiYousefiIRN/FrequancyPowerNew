@@ -24,10 +24,16 @@ namespace MVCApp_PowerFrequency.Controllers
             _baseApiUrl = configuration["ApiUrl"] ?? throw new InvalidOperationException("API URL is not configured.");
         }
 
+
         public IActionResult Index()
         {
             return View(new PowerFrequencyData());
         }
+        public IActionResult PacketView()
+        {
+            return View();
+        }
+
         public IActionResult LiveFrequency()
         {
             return View(); // مطمئن شوید که فایل `LiveFrequency.cshtml` در مسیر صحیح وجود دارد
