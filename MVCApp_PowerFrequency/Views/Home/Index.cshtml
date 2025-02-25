@@ -5,7 +5,13 @@
 }
 
 <h2>@ViewData["Title"]</h2>
+<h2 class="text-center">Welcome to Power Monitoring System</h2>
 
+<div class="text-center mt-4">
+    <a href="@Url.Action("LiveFrequency", "Home")" class="btn btn-primary btn-lg">
+        مشاهده مانیتورینگ فرکانس 🔍
+    </a>
+</div>
 <!-- نمایش پیام‌ها -->
 @if (TempData["Message"] != null)
 {

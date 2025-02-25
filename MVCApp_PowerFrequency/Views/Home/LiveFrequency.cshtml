@@ -1,0 +1,73 @@
+﻿@{
+    ViewData["Title"] = "Live Frequency";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center">Live Frequency Monitoring</h2>
+
+<div class="container">
+    <canvas id="frequencyChart"></canvas>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // آدرس صحیح SignalR Hub در Web API
+        const isHttps = window.location.protocol === "https:";
+        const apiUrl = isHttps ? "https://localhost:7077/frequencyHub" : "http://localhost:5180/frequencyHub"; // مطمئن شوید آدرس صحیح باشد
+
+        // آماده‌سازی Canvas برای نمودار
+        const ctx = document.getElementById('frequencyChart').getContext('2d');
+
+        const frequencyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Frequency (Hz)',
+                    borderColor: 'red',
+                    borderWidth: 2,
+                    fill: false,
+                    data: []
+                }]
+            },
+            options: {
+                scales: {
+                    x: { title: { display: true, text: 'Time' } },
+                    y: { title: { display: true, text: 'Frequency (Hz)' }, min: 58, max: 62 }
+                }
+            }
+        });
+
+        // اتصال به SignalR Web API
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl(apiUrl)
+            .build();
+
+        connection.start()
+            .then(() => {
+                console.log("Connected to Frequency Hub");
+            })
+            .catch(err => console.error("Error connecting to SignalR:", err));
+
+        // دریافت داده‌ها از SignalR و بروزرسانی نمودار
+        connection.on("ReceiveFrequency", (frequency) => {
+            const now = new Date().toLocaleTimeString();
+
+            // اگر تعداد داده‌های نمودار بیشتر از 10 بود، قدیمی‌ها را حذف می‌کنیم
+            if (frequencyChart.data.labels.length > 10) {
+                frequencyChart.data.labels.shift();
+                frequencyChart.data.datasets[0].data.shift();
+            }
+
+            // اضافه کردن داده جدید به نمودار
+            frequencyChart.data.labels.push(now);
+            frequencyChart.data.datasets[0].data.push(frequency);
+
+            // بروزرسانی نمودار
+            frequencyChart.update();
+        });
+    </script>
+}

@@ -7,6 +7,7 @@ using WebAppAPIFrequncyPower.Services.Actions;
 using WebAppAPIFrequncyPower.Services.ClassServic;
 using WebAppAPIFrequncyPower.Services.Implementations;
 using WebAppAPIFrequncyPower.Services.InterfaceServic;
+using WebAppAPIFrequncyPower.Services.SignalR;
 
 namespace WebAppAPIFrequncyPower
 {
@@ -22,6 +23,7 @@ namespace WebAppAPIFrequncyPower
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddSignalR(); // اضافه کردن سرویس SignalR
 
             // اتصال به دیتابیس (SQL Server)
             builder.Services.AddDbContext<PowerGridContext>(options =>
@@ -47,12 +49,11 @@ namespace WebAppAPIFrequncyPower
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            app.UseRouting();
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
             app.MapControllers();
-
+            app.MapHub<FrequencyHub>("/frequencyHub");
             app.Run();
         }
     }

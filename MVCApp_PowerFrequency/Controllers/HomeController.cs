@@ -28,7 +28,10 @@ namespace MVCApp_PowerFrequency.Controllers
         {
             return View(new PowerFrequencyData());
         }
-
+        public IActionResult LiveFrequency()
+        {
+            return View(); // مطمئن شوید که فایل `LiveFrequency.cshtml` در مسیر صحیح وجود دارد
+        }
         public IActionResult Privacy()
         {
             return View();

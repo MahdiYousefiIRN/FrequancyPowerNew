@@ -11,7 +11,6 @@ namespace MVCApp_PowerFrequency
             // اضافه کردن سرویس‌های HTTPClient برای استفاده در PowerFrequencyService
             builder.Services.AddHttpClient<PowerFrequencyService>(client =>
             {
-                // از پیکربندی و متغیرهای محیطی استفاده می‌کنیم
                 var apiUrl = builder.Configuration["ApiUrl"] ?? Environment.GetEnvironmentVariable("API_URL");
                 if (string.IsNullOrEmpty(apiUrl))
                 {
@@ -35,10 +34,9 @@ namespace MVCApp_PowerFrequency
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
-                // ریدایرکت به HTTPS در صورت استفاده از HTTP
                 app.UseHttpsRedirection();
-
             }
+
             app.UseStaticFiles(); // برای دسترسی به فایل‌های استاتیک
 
             // فعال کردن مسیریابی برای MVC
